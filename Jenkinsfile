@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Spacenix69/maven_webapp.git'
+                git branch: 'trunk', url: 'https://github.com/Spacenix69/maven_webapp.git'
             }
         }
 
