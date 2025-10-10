@@ -8,7 +8,7 @@ RUN rm -rf /usr/local/tomcat/webapps/*
 COPY target/maven_webapp-1.0.war /usr/local/tomcat/webapps/ROOT.war
 
 # Expose Tomcat port
-EXPOSE 8080
+EXPOSE 8090
 
 # Run Tomcat
 CMD ["catalina.sh", "run"]
