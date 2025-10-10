@@ -7,11 +7,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'trunk', url: 'https://github.com/Spacenix69/maven_webapp.git'
-            }
-        }
 
         stage('Build') {
             steps {
