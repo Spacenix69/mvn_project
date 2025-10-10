@@ -8,9 +8,24 @@ pipeline {
 
     stages {
 
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/trunk']], // your repo branch
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Spacenix69/mvn_project.git',
+                        credentialsId: 'github-pat'
+                    ]]
+                ])
+            }
+        }
+
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                bat 'mvn clean package'
             }
         }
 
@@ -18,13 +33,13 @@ pipeline {
             steps {
                 script {
                     // Build Docker image
-                    sh "docker build -t $DOCKER_IMAGE ."
+                    bat "docker build -t %DOCKER_IMAGE% ."
 
                     // Stop and remove old container if exists
-                    sh "docker rm -f $TOMCAT_CONTAINER || true"
+                    bat "docker rm -f %TOMCAT_CONTAINER% || echo Container not found"
 
                     // Run new container
-                    sh "docker run -d --name $TOMCAT_CONTAINER -p 8090:8090 $DOCKER_IMAGE"
+                    bat "docker run -d --name %TOMCAT_CONTAINER% -p 8090:8090 %DOCKER_IMAGE%"
                 }
             }
         }
@@ -32,7 +47,7 @@ pipeline {
 
     post {
         success {
-            echo "Deployment Successful! Visit http://localhost:8080"
+            echo "Deployment Successful! Visit http://localhost:8090"
         }
         failure {
             echo "Something went wrong!"
