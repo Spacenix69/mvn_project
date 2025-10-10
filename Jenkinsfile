@@ -1,27 +1,46 @@
 pipeline {
     agent any
+
+    environment {
+        DOCKER_IMAGE = "maven_webapp:latest"
+        TOMCAT_CONTAINER = "my-tomcat"
+    }
+
     stages {
-        stage('Clone Repo') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/Spacenix69/maven-webapp.git'
+                git branch: 'main', url: 'https://github.com/Spacenix69/maven_webapp.git'
             }
         }
 
-        stage('Build WAR') {
+        stage('Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean package'
             }
         }
 
         stage('Docker Build & Run') {
             steps {
-                sh '''
-                docker stop mvn_webapp || true
-                docker rm mvn_webapp || true
-                docker build -t mvn_webapp:latest .
-                docker run -d --name mvn_webapp -p 8080:8080 jspapp:latest
-                '''
+                script {
+                    // Build Docker image
+                    sh "docker build -t $DOCKER_IMAGE ."
+
+                    // Stop and remove old container if exists
+                    sh "docker rm -f $TOMCAT_CONTAINER || true"
+
+                    // Run new container
+                    sh "docker run -d --name $TOMCAT_CONTAINER -p 8090:8090 $DOCKER_IMAGE"
+                }
             }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment Successful! Visit http://localhost:8080"
+        }
+        failure {
+            echo "Something went wrong!"
         }
     }
 }
